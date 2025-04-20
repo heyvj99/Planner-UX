@@ -87,7 +87,7 @@ const MainContent = () => {
   ];
 
   return (
-    <div className="p-8">
+    <div className="p-20">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -96,9 +96,9 @@ const MainContent = () => {
             <span>›</span>
             <span>Plan</span>
           </div>
-          <h1 className="text-2xl font-semibold text-gray-900">
+          <h2 className="text-xl font-semibold text-gray-900">
             Improving Your Product Sense
-          </h1>
+          </h2>
           <div className="text-gray-600 mt-1">3 May - 24 May</div>
         </div>
         <div className="flex items-center gap-3">
