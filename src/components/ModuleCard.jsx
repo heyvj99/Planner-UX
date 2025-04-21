@@ -11,12 +11,14 @@ import {
   BsChevronUp,
   BsThreeDotsVertical,
 } from "react-icons/bs";
+import Portal from "./Portal";
 
 const ModuleCard = ({ moduleData, onUpdate, onDelete, onToggleVisibility }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isEditing, setIsEditing] = useState(moduleData.isNew);
   const [isTitleEditing, setIsTitleEditing] = useState(false);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const moreOptionsRef = useRef(null);
   const [editedData, setEditedData] = useState({
     title: moduleData.title || "",
@@ -74,6 +76,17 @@ const ModuleCard = ({ moduleData, onUpdate, onDelete, onToggleVisibility }) => {
     if (isTitleEditing) {
       handleSave();
     }
+  };
+
+  const handleMoreOptionsClick = () => {
+    if (moreOptionsRef.current) {
+      const rect = moreOptionsRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY + 4,
+        left: rect.right - 144, // 144px is the width of the dropdown (w-36)
+      });
+    }
+    setShowMoreOptions(!showMoreOptions);
   };
 
   return (
@@ -244,47 +257,6 @@ const ModuleCard = ({ moduleData, onUpdate, onDelete, onToggleVisibility }) => {
                     >
                       <AiOutlineEdit className="w-[18px] h-[18px] text-gray-600" />
                     </button>
-                    <div className="relative" ref={moreOptionsRef}>
-                      <button
-                        className="p-1.5 hover:bg-gray-100 rounded-md"
-                        onClick={() => setShowMoreOptions(!showMoreOptions)}
-                      >
-                        <BsThreeDotsVertical className="w-[18px] h-[18px] text-gray-600" />
-                      </button>
-                      {showMoreOptions && (
-                        <div className="absolute right-0 mt-1 w-36 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-10">
-                          <button
-                            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                            onClick={() => {
-                              setShowMoreOptions(false);
-                              onToggleVisibility();
-                            }}
-                          >
-                            {moduleData.isHidden ? (
-                              <>
-                                <AiOutlineEye className="w-4 h-4" />
-                                Show Module
-                              </>
-                            ) : (
-                              <>
-                                <AiOutlineEyeInvisible className="w-4 h-4" />
-                                Hide Module
-                              </>
-                            )}
-                          </button>
-                          <button
-                            className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-50 flex items-center gap-2"
-                            onClick={() => {
-                              setShowMoreOptions(false);
-                              onDelete();
-                            }}
-                          >
-                            <AiOutlineDelete className="w-4 h-4" />
-                            Delete Module
-                          </button>
-                        </div>
-                      )}
-                    </div>
                     {!moduleData.isNew && (
                       <button
                         className="p-1.5 hover:bg-gray-100 rounded-md"
@@ -297,6 +269,55 @@ const ModuleCard = ({ moduleData, onUpdate, onDelete, onToggleVisibility }) => {
                         )}
                       </button>
                     )}
+                    <div ref={moreOptionsRef}>
+                      <button
+                        className="p-1.5 hover:bg-gray-100 rounded-md"
+                        onClick={handleMoreOptionsClick}
+                      >
+                        <BsThreeDotsVertical className="w-[18px] h-[18px] text-gray-600" />
+                      </button>
+                      {showMoreOptions && (
+                        <Portal>
+                          <div
+                            className="fixed w-36 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-[9999]"
+                            style={{
+                              top: `${dropdownPosition.top}px`,
+                              left: `${dropdownPosition.left}px`,
+                            }}
+                          >
+                            <button
+                              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                              onClick={() => {
+                                setShowMoreOptions(false);
+                                onToggleVisibility();
+                              }}
+                            >
+                              {moduleData.isHidden ? (
+                                <>
+                                  <AiOutlineEye className="w-4 h-4" />
+                                  Show Module
+                                </>
+                              ) : (
+                                <>
+                                  <AiOutlineEyeInvisible className="w-4 h-4" />
+                                  Hide Module
+                                </>
+                              )}
+                            </button>
+                            <button
+                              className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-50 flex items-center gap-2"
+                              onClick={() => {
+                                setShowMoreOptions(false);
+                                onDelete();
+                              }}
+                            >
+                              <AiOutlineDelete className="w-4 h-4" />
+                              Delete Module
+                            </button>
+                          </div>
+                        </Portal>
+                      )}
+                    </div>
                   </>
                 )}
               </div>
