@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import ModuleCard from "./ModuleCard";
 import { AiOutlinePlus } from "react-icons/ai";
 
 const MainContent = () => {
-  const modules = [
+  const [modules, setModules] = useState([
     {
       date: { month: "May", day: "5" },
       title: "Class 1: Intro, Product Sense Mindset",
@@ -84,10 +84,58 @@ const MainContent = () => {
       totalMinutes: 90,
       content: [],
     },
-  ];
+  ]);
+
+  const addNewModule = () => {
+    // Get the last module's date to calculate next date
+    const lastModule = modules[modules.length - 1];
+    const lastDate = lastModule
+      ? new Date(2024, 4, parseInt(lastModule.date.day))
+      : new Date(2024, 4, 1);
+    const nextDate = new Date(lastDate);
+    nextDate.setDate(nextDate.getDate() + 2); // Add 2 days for next class
+
+    const newModule = {
+      date: {
+        month: nextDate.toLocaleString("default", { month: "short" }),
+        day: nextDate.getDate().toString(),
+      },
+      title: "New Module",
+      subtitle: "Click to edit module details",
+      sections: 0,
+      totalTime: "0hr 00min",
+      totalMinutes: 0,
+      completedMinutes: 0,
+      isNew: true, // Flag to show it's a new module
+      content: [],
+    };
+
+    setModules([...modules, newModule]);
+  };
+
+  const updateModule = (index, updatedData) => {
+    const newModules = [...modules];
+    newModules[index] = { ...newModules[index], ...updatedData, isNew: false };
+    setModules(newModules);
+  };
+
+  const deleteModule = (index) => {
+    const newModules = [...modules];
+    newModules.splice(index, 1);
+    setModules(newModules);
+  };
+
+  const toggleModuleVisibility = (index) => {
+    const newModules = [...modules];
+    newModules[index] = {
+      ...newModules[index],
+      isHidden: !newModules[index].isHidden,
+    };
+    setModules(newModules);
+  };
 
   return (
-    <div className="p-20">
+    <div className="p-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -96,17 +144,19 @@ const MainContent = () => {
             <span>›</span>
             <span>Plan</span>
           </div>
-          <h2 className="text-xl font-semibold text-gray-900">
+          <h1 className="text-2xl font-semibold text-gray-900">
             Improving Your Product Sense
-          </h2>
+          </h1>
           <div className="text-gray-600 mt-1">3 May - 24 May</div>
         </div>
         <div className="flex items-center gap-3">
           <button className="flex items-center gap-2 text-purple-600 px-4 py-2 rounded-lg border border-purple-600 hover:bg-purple-50 transition-colors">
-            <AiOutlinePlus size={20} />
-            <span>Import Agenda</span>
+            Import Agenda
           </button>
-          <button className="flex items-center gap-2 text-purple-600 px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+          <button
+            onClick={addNewModule}
+            className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+          >
             <AiOutlinePlus size={20} />
             <span>Add Module</span>
           </button>
@@ -116,7 +166,13 @@ const MainContent = () => {
       {/* Modules */}
       <div className="space-y-4">
         {modules.map((module, index) => (
-          <ModuleCard key={index} moduleData={module} />
+          <ModuleCard
+            key={index}
+            moduleData={module}
+            onUpdate={(updatedData) => updateModule(index, updatedData)}
+            onDelete={() => deleteModule(index)}
+            onToggleVisibility={() => toggleModuleVisibility(index)}
+          />
         ))}
       </div>
     </div>
